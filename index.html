@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drill & Drive - Professional Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom scrollbar for a polished look */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f0f0f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #7e22ce; /* Purple-700 */
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9333ea; /* Purple-600 */
+        }
+
+        /* Sparks Animation */
+        @keyframes spark-float {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .sparks-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .spark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: #fbbf24; /* Amber-400 */
+            box-shadow: 0 0 10px #fbbf24, 0 0 20px #f59e0b, 0 0 30px #f59e0b; /* Amber-500 */
+            animation: spark-float linear infinite;
+        }
+
+        /* Create multiple sparks using pseudo-elements to reduce DOM nodes */
+        .sparks-container::before,
+        .sparks-container::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, #fbbf24 2px, transparent 2px),
+                radial-gradient(circle, #fbbf24 1px, transparent 1px),
+                radial-gradient(circle, #f59e0b 2px, transparent 2px),
+                radial-gradient(circle, #fbbf24 1px, transparent 1px);
+            background-size: 60% 80%, 40% 40%, 50% 60%, 70% 50%;
+            background-position: 10% 90%, 80% 10%, 30% 50%, 60% 20%;
+            opacity: 0.6;
+            animation: spark-float 10s linear infinite;
+        }
+
+        .sparks-container::after {
+            background-size: 30% 40%, 70% 80%, 20% 20%, 60% 60%;
+            background-position: 50% 30%, 20% 80%, 90% 40%, 10% 10%;
+            animation-delay: -5s;
+            animation-duration: 15s;
+        }
+
+        /* Cursor Glow Effect */
+        #cursor-glow {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(126, 34, 206, 0.05) 45%, transparent 70%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            /* Start off-screen */
+            transform: translate(-100%, -100%);
+            transition: transform 0.1s ease-out;
+            mix-blend-mode: screen;
+        }
+
+        /* Services Page Entrance Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 0; /* Start hidden */
+        }
+        
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            black: '#0a0a0a',
+                            dark: '#171717',
+                            purple: '#7e22ce',
+                            lightPurple: '#a855f7',
+                            accent: '#d8b4fe'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-brand-black text-white font-sans antialiased flex flex-col min-h-screen cursor-default">
+
+    <!-- Cursor Glow Element -->
+    <div id="cursor-glow"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-brand-black/90 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo (Home Button) -->
+                <div class="flex-shrink-0">
+                    <a href="javascript:void(0)" onclick="toggleView('main-view')" class="flex items-center gap-2 group transition-opacity hover:opacity-80">
+                        <!-- Icon Logo Representation -->
+                        <img src="https://placehold.co/100x100/7e22ce/ffffff?text=LOGO" alt="Drill & Drive Logo" class="h-12 w-12 rounded-full border-2 border-brand-purple object-cover">
+                        <span class="font-bold text-xl tracking-tight text-white group-hover:text-brand-accent transition-colors">
+                            DRILL <span class="text-brand-purple">&</span> DRIVE
+                        </span>
+                    </a>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="javascript:void(0)" onclick="toggleView('main-view'); document.getElementById('home').scrollIntoView();" class="text-gray-300 hover:text-brand-purple transition-colors font-medium">Home</a>
+                    <!-- Services Link -->
+                    <a href="javascript:void(0)" onclick="toggleView('services-details')" class="text-gray-300 hover:text-brand-purple transition-colors font-medium">Services</a>
+                    <!-- About Link -->
+                    <a href="javascript:void(0)" onclick="toggleView('about-details')" class="text-gray-300 hover:text-brand-purple transition-colors font-medium">About Us</a>
+                    <!-- Contact Link (Button Style) -->
+                    <a href="javascript:void(0)" onclick="toggleView('contact-details')" class="px-5 py-2.5 bg-brand-purple hover:bg-purple-600 text-white font-medium rounded-full transition-all transform hover:scale-105 shadow-lg shadow-purple-900/50">
+                        Get a Quote
+                    </a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-gray-300 hover:text-white focus:outline-none">
+                        <i data-lucide="menu" class="h-8 w-8"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="hidden md:hidden bg-brand-dark border-b border-white/10">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="javascript:void(0)" onclick="toggleView('main-view'); document.getElementById('home').scrollIntoView();" class="block px-3 py-3 text-base font-medium text-white hover:bg-brand-purple rounded-md">Home</a>
+                <a href="javascript:void(0)" onclick="toggleView('services-details')" class="block px-3 py-3 text-base font-medium text-gray-300 hover:bg-brand-purple hover:text-white rounded-md">Services</a>
+                <a href="javascript:void(0)" onclick="toggleView('about-details')" class="block px-3 py-3 text-base font-medium text-gray-300 hover:bg-brand-purple hover:text-white rounded-md">About Us</a>
+                <a href="javascript:void(0)" onclick="toggleView('contact-details')" class="block px-3 py-3 text-base font-bold text-brand-purple hover:text-white mt-4">Contact Now</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN VIEW WRAPPER -->
+    <div id="main-view" class="flex-grow">
+        <!-- Hero Section -->
+        <section id="home" class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+            <!-- Background Gradient/Effect -->
+            <div class="absolute inset-0 z-0">
+                <div class="absolute inset-0 bg-gradient-to-br from-brand-black via-brand-dark to-purple-950 opacity-90"></div>
+                <!-- Sparks Animation Container -->
+                <div class="sparks-container"></div>
+                <!-- Decorative abstract shape -->
+                <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-brand-purple blur-3xl opacity-20 animate-pulse"></div>
+                <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-purple-600 blur-3xl opacity-10"></div>
+            </div>
+
+            <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center lg:text-left flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 lg:pr-12">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+                        Professional Tools. <br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-lightPurple to-white">
+                            Heavy Duty Results.
+                        </span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-400 mb-8 max-w-2xl mx-auto lg:mx-0">
+We provide full maintenance services 24/7, ensuring your home or business runs smoothly without interruptions. Quality is not just a promise - it's our standard. With professional technicians and reliable tools, we deliver precise, efficient, and long-lasting results.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <!-- Updated Button to scroll to the homepage Services section -->
+                        <a href="javascript:void(0)" onclick="document.getElementById('services').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-white text-brand-purple font-bold rounded-full hover:bg-gray-100 transition-colors shadow-lg">
+                            Explore Services
+                        </a>
+                        <!-- Updated Button to open Contact Page -->
+                        <a href="javascript:void(0)" onclick="toggleView('contact-details')" class="px-8 py-4 border border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white font-bold rounded-full transition-all">
+                            Contact Us
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Hero Image / Visual -->
+                <div class="lg:w-1/2 mt-12 lg:mt-0 relative">
+                    <div class="relative bg-brand-dark p-8 rounded-2xl border border-white/10 shadow-2xl shadow-purple-900/20 transform rotate-1 hover:rotate-0 transition-transform duration-500">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-4">
+                                <!-- Box 1: Handyman (Synced) -->
+                                <div onclick="toggleView('handyman-details')" class="bg-brand-black p-6 rounded-xl border border-white/5 cursor-pointer hover:border-brand-purple/50 transition-colors group">
+                                    <i data-lucide="hammer" class="h-10 w-10 text-brand-purple mb-2 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-lg text-white">Handyman</h3>
+                                    <p class="text-sm text-gray-500">General Repairs</p>
+                                </div>
+                                <!-- Box 2: Plumbing (Synced) -->
+                                <div onclick="toggleView('plumbing-details')" class="bg-brand-purple p-6 rounded-xl text-white cursor-pointer hover:bg-purple-600 transition-colors shadow-lg shadow-purple-900/40">
+                                    <i data-lucide="droplet" class="h-10 w-10 text-white mb-2"></i>
+                                    <h3 class="font-bold text-lg">Plumbing</h3>
+                                    <p class="text-sm text-white/80">Pipe & Fixtures</p>
+                                </div>
+                            </div>
+                            <div class="space-y-4 pt-8">
+                                <!-- Box 3: Locksmith (Synced) -->
+                                <div onclick="toggleView('locksmith-details')" class="bg-brand-black p-6 rounded-xl border border-white/5 cursor-pointer hover:border-brand-purple/50 transition-colors group">
+                                    <i data-lucide="key" class="h-10 w-10 text-brand-lightPurple mb-2 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-lg text-white">Locksmith</h3>
+                                    <p class="text-sm text-gray-500">Secure Access</p>
+                                </div>
+                                <!-- Box 4: Electrical (Synced) -->
+                                <div onclick="toggleView('electrical-details')" class="bg-brand-black p-6 rounded-xl border border-white/5 cursor-pointer hover:border-brand-purple/50 transition-colors group">
+                                    <i data-lucide="zap" class="h-10 w-10 text-brand-purple mb-2 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-lg text-white">Electrical</h3>
+                                    <p class="text-sm text-gray-500">Power Systems</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section (Restored to Homepage) -->
+        <section id="services" class="py-24 bg-brand-dark relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-brand-purple font-semibold tracking-wide uppercase text-sm">Our Specialties</h2>
+                    <h3 class="mt-2 text-3xl md:text-4xl font-bold text-white">Commercial Facility Services</h3>
+                    <div class="w-24 h-1 bg-brand-purple mx-auto mt-4 rounded-full"></div>
+                </div>
+
+                <!-- Grid Layout adapted for 4 items -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Service 1: Handyman (Clickable) -->
+                    <div onclick="toggleView('handyman-details')" class="group bg-brand-black p-6 rounded-2xl border border-white/5 hover:border-brand-purple/50 transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+                        <div class="w-14 h-14 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brand-purple transition-colors">
+                            <i data-lucide="hammer" class="h-7 w-7 text-brand-lightPurple group-hover:text-white"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Commercial Handyman</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            General repairs, furniture assembly, facility maintenance, and carpentry tasks. <span class="text-brand-purple font-bold block mt-2">Click to learn more &rarr;</span>
+                        </p>
+                    </div>
+
+                    <!-- Service 2: Plumbing -->
+                    <div onclick="toggleView('plumbing-details')" class="group bg-brand-black p-6 rounded-2xl border border-white/5 hover:border-brand-purple/50 transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+                        <div class="w-14 h-14 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brand-purple transition-colors">
+                            <i data-lucide="droplet" class="h-7 w-7 text-brand-lightPurple group-hover:text-white"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Commercial Plumbing</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Professional pipe repairs, leak detection, fixture installation, and routine maintenance. <span class="text-brand-purple font-bold block mt-2">Click to learn more &rarr;</span>
+                        </p>
+                    </div>
+
+                    <!-- Service 3: Locksmith -->
+                    <div onclick="toggleView('locksmith-details')" class="group bg-brand-black p-6 rounded-2xl border border-white/5 hover:border-brand-purple/50 transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+                        <div class="w-14 h-14 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brand-purple transition-colors">
+                            <i data-lucide="key" class="h-7 w-7 text-brand-lightPurple group-hover:text-white"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Commercial Locksmith</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Secure access control systems, master keying, and emergency lockout assistance. <span class="text-brand-purple font-bold block mt-2">Click to learn more &rarr;</span>
+                        </p>
+                    </div>
+                    
+                    <!-- Service 4: Electrical -->
+                    <div onclick="toggleView('electrical-details')" class="group bg-brand-black p-6 rounded-2xl border border-white/5 hover:border-brand-purple/50 transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+                        <div class="w-14 h-14 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brand-purple transition-colors">
+                            <i data-lucide="zap" class="h-7 w-7 text-brand-lightPurple group-hover:text-white"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3">Commercial Electrical</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Complete lighting solutions, panel upgrades, data cabling, and backup power systems. <span class="text-brand-purple font-bold block mt-2">Click to learn more &rarr;</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Contact Section (Restored to Homepage) -->
+        <section id="contact" class="py-24 relative overflow-hidden">
+            <div class="absolute inset-0 bg-brand-purple/5"></div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-white">Contact Us</h2>
+                    <p class="text-gray-400 mt-2">Choose the best way to reach our team.</p>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <!-- Option 1: Send Message (Form) -->
+                    <div class="bg-brand-dark p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl">
+                        <div class="mb-8 border-b border-white/10 pb-6">
+                            <h3 class="text-2xl font-bold text-white flex items-center gap-3">
+                                <div class="bg-brand-purple/20 p-2 rounded-lg">
+                                    <i data-lucide="mail" class="text-brand-purple w-6 h-6"></i>
+                                </div>
+                                Send a Message
+                            </h3>
+                            <p class="text-gray-400 text-sm mt-2">Fill out the form below for a free quote.</p>
+                        </div>
+
+                        <form class="space-y-6" onsubmit="event.preventDefault(); alert('Thank you! We will contact you shortly.');">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-400 mb-2">Name</label>
+                                    <input type="text" class="w-full bg-brand-black border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all" placeholder="John Doe">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                                    <input type="email" class="w-full bg-brand-black border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all" placeholder="john@company.com">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Service Needed</label>
+                                <select class="w-full bg-brand-black border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all">
+                                    <option>Commercial Handyman</option>
+                                    <option>Commercial Plumbing</option>
+                                    <option>Commercial Locksmith</option>
+                                    <option>Commercial Electrical</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Message</label>
+                                <textarea rows="4" class="w-full bg-brand-black border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all" placeholder="Tell us about your project..."></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-brand-purple hover:bg-purple-600 text-white font-bold py-4 rounded-lg transition-colors shadow-lg shadow-purple-900/40">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Option 2: Call Us (Phone) -->
+                    <div class="bg-brand-dark p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                        <!-- Decorative gradient background -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-brand-purple/20 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        <div class="relative z-10 w-full">
+                            <div class="w-24 h-24 bg-brand-purple rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-purple-900/50">
+                                <i data-lucide="phone" class="w-10 h-10 text-white animate-pulse"></i>
+                            </div>
+                            
+                            <h3 class="text-3xl font-bold text-white mb-4">Prefer to Talk?</h3>
+                            <p class="text-gray-300 text-lg mb-8 max-w-md mx-auto">
+                                Need immediate assistance or have an emergency? Our commercial support team is available 24/7.
+                            </p>
+                            
+                            <div class="bg-brand-black/50 backdrop-blur-md border border-brand-purple/30 rounded-2xl p-8 mb-6 transform transition-transform hover:scale-105">
+                                <p class="text-gray-400 text-sm uppercase tracking-widest mb-2 font-semibold">Call Us Now</p>
+                                <a href="tel:919-555-0123" class="block text-4xl md:text-5xl font-bold text-white hover:text-brand-accent transition-colors">
+                                    (919) 555-0123
+                                </a>
+                            </div>
+
+                            <div class="flex items-center justify-center gap-2 text-brand-lightPurple">
+                                <i data-lucide="clock" class="w-4 h-4"></i>
+                                <span class="font-medium">Available 24 Hours a Day</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- SUB PAGE: Services Main Hub -->
+    <div id="services-details" class="hidden flex-grow bg-brand-dark pt-32 pb-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header with Animation -->
+            <div class="text-center mb-16 animate-fade-in-up">
+                <h2 class="text-brand-purple font-semibold tracking-wide uppercase text-sm">Our Specialties</h2>
+                <h3 class="mt-2 text-4xl md:text-5xl font-bold text-white">Commercial Facility Services</h3>
+                <p class="mt-4 text-xl text-gray-400 max-w-2xl mx-auto">Explore our comprehensive range of services designed to keep your business running smoothly.</p>
+                <div class="w-24 h-1 bg-brand-purple mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <!-- Grid Layout with Staggered Animation -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Service 1: Handyman -->
+                <div onclick="toggleView('handyman-details')" class="group bg-brand-black p-6 rounded-2xl border border-white/5 hover:border-brand-purple/50 transition-all duration-300 hover:-translate-y-2 cursor-pointer animate-fade-in-up delay-100">
+                    <div class="w-14 h-14 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brand-purple transition-colors">
+                        <i data-lucide="hammer" class="h-7 w-7 text-brand-lightPurple group-hover:text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3">Commercial Handyman</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        General repairs, furniture assembly, facility maintenance, and carpentry tasks. <span class="text-brand-purple font-bold block mt-2">Click to learn more &rarr;</span>
+                    </p>
+                </div>
+
+                <!-- Service 2: Plumbing -->
+                <div onclick="toggleView('plumbing-details')" class="group bg-brand-black p-6 rounded-2xl border border-white/5 hover:border-brand-purple/50 transition-all duration-300 hover:-translate-y-2 cursor-pointer animate-fade-in-up delay-200">
+                    <div class="w-14 h-14 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brand-purple transition-colors">
+                        <i data-lucide="droplet" class="h-7 w-7 text-brand-lightPurple group-hover:text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3">Commercial Plumbing</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Professional pipe repairs, leak detection, fixture installation, and routine maintenance. <span class="text-brand-purple font-bold block mt-2">Click to learn more &rarr;</span>
+                    </p>
+                </div>
+
+                <!-- Service 3: Locksmith -->
+                <div onclick="toggleView('locksmith-details')" class="group bg-brand-black p-6 rounded-2xl border border-white/5 hover:border-brand-purple/50 transition-all duration-300 hover:-translate-y-2 cursor-pointer animate-fade-in-up delay-300">
+                    <div class="w-14 h-14 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brand-purple transition-colors">
+                        <i data-lucide="key" class="h-7 w-7 text-brand-lightPurple group-hover:text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3">Commercial Locksmith</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Secure access control systems, master keying, and emergency lockout assistance. <span class="text-brand-purple font-bold block mt-2">Click to learn more &rarr;</span>
+                    </p>
+                </div>
+                
+                <!-- Service 4: Electrical -->
+                <div onclick="toggleView('electrical-details')" class="group bg-brand-black p-6 rounded-2xl border border-white/5 hover:border-brand-purple/50 transition-all duration-300 hover:-translate-y-2 cursor-pointer animate-fade-in-up delay-400">
+                    <div class="w-14 h-14 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:bg-brand-purple transition-colors">
+                        <i data-lucide="zap" class="h-7 w-7 text-brand-lightPurple group-hover:text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3">Commercial Electrical</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed">
+                        Complete lighting solutions, panel upgrades, data cabling, and backup power systems. <span class="text-brand-purple font-bold block mt-2">Click to learn more &rarr;</span>
+                    </p>
+                </div>
+            </div>
+
+             <div class="mt-16 text-center animate-fade-in-up delay-500">
+                 <button onclick="toggleView('main-view')" class="px-8 py-4 border border-white/20 hover:bg-white/5 text-white font-bold rounded-full transition-all text-center">
+                    Back to Home
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB PAGE: Handyman Details -->
+    <div id="handyman-details" class="hidden flex-grow bg-brand-dark pt-32 pb-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Back Button -->
+            <button onclick="toggleView('services-details')" class="mb-8 flex items-center text-brand-lightPurple hover:text-white transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                Back to Services
+            </button>
+
+            <!-- Content -->
+            <div class="bg-brand-black p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="bg-brand-purple/20 p-3 rounded-xl">
+                        <i data-lucide="hammer" class="w-8 h-8 text-brand-lightPurple"></i>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-white">Commercial Handyman Services</h1>
+                </div>
+
+                <div class="prose prose-invert prose-lg max-w-none text-gray-300 space-y-6">
+                    <p>
+                        Effective commercial property management requires consistent, reliable maintenance to prevent minor issues from escalating into costly repairs. <strong class="text-white">Drill & Drive Solutions</strong> delivers a full spectrum of professional handyman services designed specifically for businesses across NC, ensuring your facilities remain in optimal condition. Whether it’s routine upkeep or urgent repair requests, our experienced technicians handle every task with accuracy and expertise.
+                    </p>
+                    
+                    <p>
+                        Our preventative maintenance approach helps property owners and managers control long-term expenses while reducing operational interruptions. By providing timely service for plumbing, electrical, carpentry, and general facility needs, we help preserve the performance, safety, and value of your building. Our commitment to efficiency and reliability ensures that all systems function seamlessly.
+                    </p>
+                    
+                    <p>
+                        Investing in skilled handyman support not only protects the structural integrity of your property but also fosters a safe, productive environment for employees, clients, and visitors. A well-maintained facility reduces the risk of workplace incidents, limits downtime, and enhances overall workplace satisfaction. With <strong class="text-white">Drill & Drive</strong>, businesses benefit from dependable, proactive maintenance strategies that extend asset lifespan and reduce unforeseen repair costs.
+                    </p>
+                </div>
+
+                <!-- New Images Section -->
+                <div class="grid md:grid-cols-2 gap-6 my-10">
+                    <img src="https://placehold.co/800x600/7e22ce/ffffff?text=New+Image+1" alt="Professional Technician" class="rounded-2xl shadow-lg border border-white/10 h-64 w-full object-cover hover:opacity-90 transition-opacity">
+                    <img src="https://placehold.co/800x600/7e22ce/ffffff?text=New+Image+2" alt="Maintenance Tools" class="rounded-2xl shadow-lg border border-white/10 h-64 w-full object-cover hover:opacity-90 transition-opacity">
+                </div>
+
+                <!-- Expanded Content Section -->
+                <div class="prose prose-invert prose-lg max-w-none text-gray-300 space-y-6">
+                    <h3 class="text-2xl font-bold text-white mb-4">Precision & Asset Protection</h3>
+                    <p>
+                        Your commercial property deserves services that prioritize asset protection and operational continuity. At <strong class="text-white">Drill & Drive</strong>, we focus on the details that matter most.
+                    </p>
+                    
+                    <p>Our approach ensures every maintenance task is carried out with precision:</p>
+
+                    <ul class="list-none space-y-4 pl-0">
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">🛠</span>
+                            <span><strong class="text-white">Customized Maintenance Plans</strong> – Tailored schedules to fit your business operations and property needs, avoiding disruptions.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">⚡</span>
+                            <span><strong class="text-white">Skilled, Certified Technicians</strong> – Experienced professionals trained to handle diverse commercial systems safely and efficiently.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">📊</span>
+                            <span><strong class="text-white">Proactive Issue Detection</strong> – Early identification of potential problems prevents costly downtime and structural damage.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">⏱</span>
+                            <span><strong class="text-white">Fast, Reliable Response</strong> – Timely service to minimize interruptions to daily business activities.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">🌱</span>
+                            <span><strong class="text-white">Sustainable Practices</strong> – Environmentally-conscious methods that reduce waste and energy usage while maintaining facility integrity.</span>
+                        </li>
+                    </ul>
+
+                    <p>
+                        By prioritizing these key aspects, <strong class="text-white">Drill & Drive</strong> ensures that each service reinforces the longevity of your property while reducing long-term operational costs. Businesses in New York benefit from reliable care, reduced liability, and a well-maintained environment that supports employee productivity and client confidence. 
+                    </p>
+                    <p>
+                        Choosing professional, proactive maintenance services means investing in the health of your facility, protecting both your financial and physical assets, and maintaining the reputation of your business. Our methodology combines technical expertise, attention to detail, and preventive strategies to keep your property running efficiently and safely.
+                    </p>
+                </div>
+
+                <div class="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-4">
+                    <button onclick="toggleView('main-view'); setTimeout(() => document.getElementById('contact').scrollIntoView(), 100);" class="px-8 py-4 bg-brand-purple hover:bg-purple-600 text-white font-bold rounded-full transition-all text-center">
+                        Request Service
+                    </button>
+                    <button onclick="toggleView('services-details')" class="px-8 py-4 border border-white/20 hover:bg-white/5 text-white font-bold rounded-full transition-all text-center">
+                        Back to Services
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB PAGE: Plumbing Details -->
+    <div id="plumbing-details" class="hidden flex-grow bg-brand-dark pt-32 pb-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Back Button -->
+            <button onclick="toggleView('services-details')" class="mb-8 flex items-center text-brand-lightPurple hover:text-white transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                Back to Services
+            </button>
+
+            <!-- Content -->
+            <div class="bg-brand-black p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="bg-brand-purple/20 p-3 rounded-xl">
+                        <i data-lucide="droplet" class="w-8 h-8 text-brand-lightPurple"></i>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-white">Commercial Plumbing Services</h1>
+                </div>
+
+                <div class="prose prose-invert prose-lg max-w-none text-gray-300 space-y-6">
+                    <h3 class="text-2xl font-bold text-white mb-4">Comprehensive Commercial Plumbing Maintenance</h3>
+                    <p>
+                        Keeping the plumbing systems in your commercial building in optimal condition is crucial for protecting your property and ensuring daily operations run smoothly. At <strong class="text-white">Drill & Drive</strong>, we offer a full range of commercial plumbing services—from scheduled inspections and leak detection to pipe repairs, water heater upkeep, and emergency support. Our proactive, technical strategy is designed to stop problems before they develop, helping businesses avoid expensive repairs and unexpected downtime. A properly maintained plumbing system reduces water waste, prevents structural damage, improves energy efficiency, and supports a safer environment for everyone in the facility.
+                    </p>
+                    
+                    <p>
+                        Taking a proactive approach also ensures your property remains compliant with local plumbing regulations—an essential requirement in commercial environments. Our technicians rely on advanced diagnostic equipment to identify issues early and deliver accurate, long-lasting solutions that enhance the durability of your plumbing network. Through routine maintenance and prompt repairs, <strong class="text-white">Drill & Drive</strong> helps NC businesses operate without interruptions that could impact employees, tenants, or customers. Choosing professional plumbing maintenance isn’t just about fixing problems—it’s a strategic investment in the long-term performance, safety, and reliability of your commercial property.
+                    </p>
+                </div>
+
+                <!-- Images Section (Matching Handyman Layout) -->
+                <div class="grid md:grid-cols-2 gap-6 my-10">
+                    <img src="https://placehold.co/800x600/7e22ce/ffffff?text=Plumbing+Inspection" alt="Plumbing Inspection" class="rounded-2xl shadow-lg border border-white/10 h-64 w-full object-cover hover:opacity-90 transition-opacity">
+                    <img src="https://placehold.co/800x600/7e22ce/ffffff?text=Commercial+Pipes" alt="Commercial Pipes" class="rounded-2xl shadow-lg border border-white/10 h-64 w-full object-cover hover:opacity-90 transition-opacity">
+                </div>
+
+                <!-- Expanded Content Section -->
+                <div class="prose prose-invert prose-lg max-w-none text-gray-300 space-y-6">
+                    <h3 class="text-2xl font-bold text-white mb-4">Operational Excellence in Commercial Plumbing</h3>
+                    <p>
+                        Effective plumbing goes beyond fixing leaks—it preserves operational continuity and protects your investment. <strong class="text-white">Drill & Drive</strong> brings advanced techniques and meticulous planning to every project.
+                    </p>
+
+                    <ul class="list-none space-y-4 pl-0">
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">🔧</span>
+                            <span><strong class="text-white">Specialized Equipment Use</strong> – Our team employs cutting-edge tools for accurate diagnostics and repairs, reducing downtime.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">💧</span>
+                            <span><strong class="text-white">Water Efficiency Optimization</strong> – We implement solutions that conserve water and lower utility costs for your facility.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">🏢</span>
+                            <span><strong class="text-white">Customized Maintenance Plans</strong> – Services tailored to your commercial property's unique plumbing needs.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">⚡</span>
+                            <span><strong class="text-white">Rapid Emergency Response</strong> – Immediate support ensures minimal disruption and prevents further damage.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">📊</span>
+                            <span><strong class="text-white">Compliance Assurance</strong> – All work meets NC codes and industry standards, protecting your business legally and financially.</span>
+                        </li>
+                    </ul>
+
+                    <p>
+                        Every feature is designed to enhance system reliability and reduce unexpected failures. Maintaining optimal plumbing functionality is crucial in commercial spaces where even minor leaks or system inefficiencies can affect operations, lead to property damage, or incur regulatory penalties. Our detailed approach ensures every project is executed with precision, prioritizing asset preservation while maintaining efficiency. Choosing <strong class="text-white">Drill & Drive</strong> means selecting a partner committed to long-term performance, cost-effectiveness, and strategic preventative care. Proper plumbing management is not just a technical necessity—it is an essential step in safeguarding the overall functionality and value of your commercial property.
+                    </p>
+                </div>
+
+                <div class="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-4">
+                    <button onclick="toggleView('main-view'); setTimeout(() => document.getElementById('contact').scrollIntoView(), 100);" class="px-8 py-4 bg-brand-purple hover:bg-purple-600 text-white font-bold rounded-full transition-all text-center">
+                        Request Service
+                    </button>
+                    <button onclick="toggleView('services-details')" class="px-8 py-4 border border-white/20 hover:bg-white/5 text-white font-bold rounded-full transition-all text-center">
+                        Back to Services
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB PAGE: Locksmith Details -->
+    <div id="locksmith-details" class="hidden flex-grow bg-brand-dark pt-32 pb-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Back Button -->
+            <button onclick="toggleView('services-details')" class="mb-8 flex items-center text-brand-lightPurple hover:text-white transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                Back to Services
+            </button>
+
+            <!-- Content -->
+            <div class="bg-brand-black p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="bg-brand-purple/20 p-3 rounded-xl">
+                        <i data-lucide="key" class="w-8 h-8 text-brand-lightPurple"></i>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-white">Commercial Locksmith Services</h1>
+                </div>
+
+                <div class="prose prose-invert prose-lg max-w-none text-gray-300 space-y-6">
+                    <h3 class="text-2xl font-bold text-white mb-4">Comprehensive Locksmith Solutions for Businesses</h3>
+                    <p>
+                        Protecting your commercial property requires more than basic locking mechanisms—it calls for a strategic, well-planned approach to security. At <strong class="text-white">Drill & Drive</strong>, we offer a complete suite of commercial locksmith services designed to shield your business from unauthorized entry, theft, and potential security breaches. Whether you need high-security locks, keyless entry systems, advanced access control, or rapid emergency lockout assistance, our services are customized to meet the specific needs of your NC property.
+                    </p>
+                    <p>
+                        Our process starts with a thorough evaluation of your facility to identify any weak points in your security setup. After pinpointing areas of concern, we recommend solutions that integrate modern technology with durable mechanical systems. Options such as high-security lock installations, master key arrangements, and electronic access control create multiple layers of protection while maintaining smooth access for authorized staff. Ongoing maintenance and timely system upgrades ensure your security measures stay strong and effective as threats evolve.
+                    </p>
+                    <p>
+                        Professional locksmith services safeguard more than just your building—they protect your valuable inventory, equipment, confidential records, and sensitive data. Well-installed and properly maintained security systems reduce the chance of break-ins, lower insurance costs, and offer peace of mind to both owners and employees. By focusing on preventative security rather than reactive fixes, <strong class="text-white">Drill & Drive</strong> helps ensure your business stays secure, efficient, and well-protected throughout NC.
+                    </p>
+                </div>
+
+                <!-- Images Section -->
+                <div class="grid md:grid-cols-2 gap-6 my-10">
+                    <img src="https://placehold.co/800x600/7e22ce/ffffff?text=Access+Control" alt="Access Control Systems" class="rounded-2xl shadow-lg border border-white/10 h-64 w-full object-cover hover:opacity-90 transition-opacity">
+                    <img src="https://placehold.co/800x600/7e22ce/ffffff?text=Master+Keying" alt="Master Keying" class="rounded-2xl shadow-lg border border-white/10 h-64 w-full object-cover hover:opacity-90 transition-opacity">
+                </div>
+
+                <!-- Expanded Content Section -->
+                <div class="prose prose-invert prose-lg max-w-none text-gray-300 space-y-6">
+                    <h3 class="text-2xl font-bold text-white mb-4">What Distinguishes Our Commercial Locksmith Services</h3>
+                    <p>
+                        Ensuring your business is secure requires precision, expertise, and proactive solutions. Here’s what sets <strong class="text-white">Drill & Drive</strong> apart:
+                    </p>
+
+                    <ul class="list-none space-y-4 pl-0">
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">🔐</span>
+                            <span><strong class="text-white">Customized Security Plans</strong>: We design systems that match the specific layout and security needs of your commercial property.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">🛠️</span>
+                            <span><strong class="text-white">Rapid Response Times</strong>: Our team in NC ensures minimal downtime during lockouts or emergency situations.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">💡</span>
+                            <span><strong class="text-white">Advanced Technology Integration</strong>: From biometric access control to smart locks, we provide state-of-the-art security solutions.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">🔑</span>
+                            <span><strong class="text-white">Key Management Solutions</strong>: Efficient master key and restricted key systems simplify access control for staff without compromising security.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">🏢</span>
+                            <span><strong class="text-white">Ongoing Support & Maintenance</strong>: Routine inspections, upgrades, and preventive maintenance keep your security systems functioning optimally.</span>
+                        </li>
+                    </ul>
+
+                    <p>
+                        These capabilities are critical because every business faces unique security challenges. A one-size-fits-all approach leaves gaps that can be exploited. Our services not only secure physical entry points but also protect intellectual property, sensitive client data, and financial assets. By combining high-tech solutions with tried-and-true mechanical systems, <strong class="text-white">Drill & Drive</strong> offers comprehensive coverage. From retail spaces and office buildings to warehouses and industrial facilities, our security strategies are designed to adapt and grow with your business. Ensuring your property is fortified against break-ins, theft, and unauthorized access allows you to focus on operations without worry. In addition, our rapid response capabilities reduce the impact of emergencies, preventing potential losses before they occur. This integrated approach demonstrates that effective commercial security isn’t just about locks; it’s about thoughtful planning, technology integration, and proactive management. Partnering with a trusted commercial locksmith like <strong class="text-white">Drill & Drive</strong> ensures your investments are protected, your staff remains safe, and your business operates smoothly in NC.
+                    </p>
+                </div>
+
+                <div class="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-4">
+                    <button onclick="toggleView('main-view'); setTimeout(() => document.getElementById('contact').scrollIntoView(), 100);" class="px-8 py-4 bg-brand-purple hover:bg-purple-600 text-white font-bold rounded-full transition-all text-center">
+                        Request Service
+                    </button>
+                    <button onclick="toggleView('services-details')" class="px-8 py-4 border border-white/20 hover:bg-white/5 text-white font-bold rounded-full transition-all text-center">
+                        Back to Services
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB PAGE: Electrical Details -->
+    <div id="electrical-details" class="hidden flex-grow bg-brand-dark pt-32 pb-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Back Button -->
+            <button onclick="toggleView('services-details')" class="mb-8 flex items-center text-brand-lightPurple hover:text-white transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                Back to Services
+            </button>
+
+            <!-- Content -->
+            <div class="bg-brand-black p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="bg-brand-purple/20 p-3 rounded-xl">
+                        <i data-lucide="zap" class="w-8 h-8 text-brand-lightPurple"></i>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-white">Commercial Electrical Services</h1>
+                </div>
+
+                <div class="prose prose-invert prose-lg max-w-none text-gray-300 space-y-6">
+                    <h3 class="text-2xl font-bold text-white mb-4">Comprehensive Electrical Protection for Your Facility</h3>
+                    <p>
+                        Maintaining the electrical systems in your commercial building is essential for safeguarding your assets and ensuring smooth day-to-day operations. At <strong class="text-white">Drill & Drive</strong>, we emphasize proactive care designed to protect your equipment, minimize downtime, and promote optimal energy efficiency. From upgraded circuit installations to scheduled electrical inspections, we work to keep your infrastructure safe, reliable, and performing at its best.
+                    </p>
+                    <p>
+                        Consistent electrical maintenance reduces the likelihood of outages, system malfunctions, and fire-related risks. By conducting regular assessments, we can identify developing issues early and prevent expensive repairs or unexpected replacements. Implementing energy-efficient practices not only cuts utility costs but also enhances equipment longevity, delivering greater long-term value for your facility.
+                    </p>
+                    <p>
+                        We collaborate closely with property managers and facility teams to develop customized electrical safety plans. Using advanced diagnostic tools and industry-approved testing methods, we evaluate load distribution, wiring conditions, and overall system performance. This forward-thinking approach ensures compliance with safety regulations and strengthens the reliability of your electrical setup under daily business demands.
+                    </p>
+                    <p>
+                        Choosing quality electrical services today helps prevent disruptions in the future. Whether your facility requires panel upgrades, generator installations, or ongoing monitoring of critical power systems, <strong class="text-white">Drill & Drive</strong> ensures your building stays protected and fully operational. Your equipment remains secure, your energy usage is optimized, and your staff can work confidently without concerns about electrical issues.
+                    </p>
+                </div>
+
+                <!-- Images Section -->
+                <div class="grid md:grid-cols-2 gap-6 my-10">
+                    <img src="https://placehold.co/800x600/7e22ce/ffffff?text=Electrical+Panels" alt="Electrical Panel Work" class="rounded-2xl shadow-lg border border-white/10 h-64 w-full object-cover hover:opacity-90 transition-opacity">
+                    <img src="https://placehold.co/800x600/7e22ce/ffffff?text=Commercial+Lighting" alt="Commercial Lighting" class="rounded-2xl shadow-lg border border-white/10 h-64 w-full object-cover hover:opacity-90 transition-opacity">
+                </div>
+
+                <!-- Expanded Content Section -->
+                <div class="prose prose-invert prose-lg max-w-none text-gray-300 space-y-6">
+                    <h3 class="text-2xl font-bold text-white mb-4">Distinctive Features That Safeguard Your Business</h3>
+                    <p>
+                        Our approach prioritizes operational safety, efficiency, and reliability. Here’s how we stand out in NC:
+                    </p>
+
+                    <ul class="list-none space-y-4 pl-0">
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">✨</span>
+                            <span><strong class="text-white">Advanced System Diagnostics</strong> – Utilize cutting-edge tools to detect electrical vulnerabilities before they escalate.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">⚡</span>
+                            <span><strong class="text-white">Energy Efficiency Solutions</strong> – Reduce energy waste while extending the life of your equipment.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">🔧</span>
+                            <span><strong class="text-white">Routine Maintenance Programs</strong> – Scheduled inspections prevent unexpected system failures and downtime.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">🛡️</span>
+                            <span><strong class="text-white">Compliance and Safety Assurance</strong> – Ensure all work aligns with local codes and industry standards.</span>
+                        </li>
+                        <li class="flex items-start gap-4 p-4 bg-brand-dark rounded-xl border border-white/5">
+                            <span class="text-2xl shrink-0">📊</span>
+                            <span><strong class="text-white">Custom Risk Assessments</strong> – Tailored evaluations that address the unique needs of your facility.</span>
+                        </li>
+                    </ul>
+
+                    <p>
+                        These elements are vital because electrical failures can compromise productivity, safety, and finances. Our preventative approach minimizes risks, protects assets, and promotes uninterrupted operations. By understanding the critical role electricity plays in your business, <strong class="text-white">Drill & Drive</strong> ensures that your systems remain resilient and reliable. Proper management of electrical infrastructure also allows for more strategic planning in scaling operations and upgrading equipment without disruptions.
+                    </p>
+                    <p>
+                        In addition, our emphasis on monitoring and early intervention provides peace of mind for business owners and facility managers. Instead of reacting to emergencies, you have a proactive plan in place that maintains stability, safeguards personnel, and supports long-term growth. Choosing services that prioritize these factors directly benefits your bottom line and your business reputation in NC.
+                    </p>
+                </div>
+
+                <div class="mt-10 pt-8 border-t border-white/10 flex flex-col sm:flex-row gap-4">
+                    <button onclick="toggleView('main-view'); setTimeout(() => document.getElementById('contact').scrollIntoView(), 100);" class="px-8 py-4 bg-brand-purple hover:bg-purple-600 text-white font-bold rounded-full transition-all text-center">
+                        Request Service
+                    </button>
+                    <button onclick="toggleView('services-details')" class="px-8 py-4 border border-white/20 hover:bg-white/5 text-white font-bold rounded-full transition-all text-center">
+                        Back to Services
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB PAGE: About Us Details -->
+    <div id="about-details" class="hidden flex-grow bg-brand-dark pt-32 pb-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Back Button -->
+            <button onclick="toggleView('main-view')" class="mb-8 flex items-center text-brand-lightPurple hover:text-white transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                Back to Home
+            </button>
+
+            <!-- Moved About Us Content -->
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <!-- Google Maps Section -->
+                <div class="lg:w-1/2 w-full">
+                    <div class="relative w-full h-96 bg-brand-dark rounded-2xl border border-white/10 shadow-2xl overflow-hidden group">
+                        <!-- Overlay Title -->
+                        <div class="absolute top-4 left-6 z-10 pointer-events-none">
+                            <div class="bg-brand-black/80 backdrop-blur-md px-4 py-2 rounded-lg border border-white/10">
+                                <h4 class="text-white font-bold text-lg flex items-center gap-2">
+                                    <i data-lucide="map-pin" class="text-brand-purple w-5 h-5"></i>
+                                    Service Area
+                                </h4>
+                            </div>
+                        </div>
+
+                        <!-- Google Maps Embed -->
+                        <iframe 
+                            width="100%" 
+                            height="100%" 
+                            frameborder="0" 
+                            scrolling="no" 
+                            marginheight="0" 
+                            marginwidth="0" 
+                            style="border:0;"
+                            src="https://maps.google.com/maps?q=North+Carolina&t=&z=7&ie=UTF8&iwloc=&output=embed"
+                            title="Google Map of Service Area"
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+
+                <div class="lg:w-1/2">
+                    <h2 class="text-3xl font-bold text-white mb-6">Built on Reliability & Power</h2>
+                    <p class="text-gray-400 mb-6 text-lg">
+                        At <strong class="text-white">Drill & Drive</strong>, we understand that downtime costs money. That's why we focus on two things: keeping your systems running and your projects moving.
+                    </p>
+                    <ul class="space-y-4">
+                        <li class="flex items-center text-gray-300">
+                            <i data-lucide="check-circle" class="text-brand-purple w-5 h-5 mr-3"></i>
+                            Licensed technicians
+                        </li>
+                        <li class="flex items-center text-gray-300">
+                            <i data-lucide="check-circle" class="text-brand-purple w-5 h-5 mr-3"></i>
+                            On call 24/7
+                        </li>
+                        <li class="flex items-center text-gray-300">
+                            <i data-lucide="check-circle" class="text-brand-purple w-5 h-5 mr-3"></i>
+                            Clean the work space is our first protocol
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="mt-16 text-center">
+                 <button onclick="toggleView('contact-details')" class="px-8 py-4 bg-brand-purple hover:bg-purple-600 text-white font-bold rounded-full transition-all text-center">
+                    Get in Touch
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB PAGE: Gallery Details -->
+    <div id="gallery-details" class="hidden flex-grow bg-brand-dark pt-32 pb-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Back Button -->
+            <button onclick="toggleView('main-view')" class="mb-8 flex items-center text-brand-lightPurple hover:text-white transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                Back to Home
+            </button>
+
+            <div class="text-center mb-16">
+                <h2 class="text-brand-purple font-semibold tracking-wide uppercase text-sm">Our Portfolio</h2>
+                <h3 class="mt-2 text-4xl md:text-5xl font-bold text-white">Project Gallery</h3>
+                <p class="mt-4 text-xl text-gray-400 max-w-2xl mx-auto">A glimpse into our professional workmanship and completed projects across North Carolina.</p>
+                <div class="w-24 h-1 bg-brand-purple mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <!-- Gallery Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Gallery Item 1 -->
+                <div class="group relative overflow-hidden rounded-2xl border border-white/10 aspect-[4/3]">
+                    <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&q=80&w=800" alt="Commercial Electrical Panel" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Electrical Systems</h4>
+                            <p class="text-brand-lightPurple text-sm">Commercial Installation</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 2 -->
+                <div class="group relative overflow-hidden rounded-2xl border border-white/10 aspect-[4/3]">
+                    <img src="https://images.unsplash.com/photo-1581094288338-2314dddb7ece?auto=format&fit=crop&q=80&w=800" alt="Plumbing Work" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Plumbing Maintenance</h4>
+                            <p class="text-brand-lightPurple text-sm">Pipe Repair & Fitting</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 3 -->
+                <div class="group relative overflow-hidden rounded-2xl border border-white/10 aspect-[4/3]">
+                    <img src="https://images.unsplash.com/photo-1558002038-1091a1661116?auto=format&fit=crop&q=80&w=800" alt="Locksmith Services" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Security Access</h4>
+                            <p class="text-brand-lightPurple text-sm">High-Security Locks</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 4 -->
+                <div class="group relative overflow-hidden rounded-2xl border border-white/10 aspect-[4/3]">
+                    <img src="https://images.unsplash.com/photo-1581578731117-10d521888b29?auto=format&fit=crop&q=80&w=800" alt="Handyman Repair" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Facility Maintenance</h4>
+                            <p class="text-brand-lightPurple text-sm">General Repairs</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 5 -->
+                <div class="group relative overflow-hidden rounded-2xl border border-white/10 aspect-[4/3]">
+                    <img src="https://images.unsplash.com/photo-1544724569-5f546fd6dd2d?auto=format&fit=crop&q=80&w=800" alt="HVAC & Electrical" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Site Upgrades</h4>
+                            <p class="text-brand-lightPurple text-sm">Modernization Projects</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Item 6 -->
+                <div class="group relative overflow-hidden rounded-2xl border border-white/10 aspect-[4/3]">
+                    <img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&q=80&w=800" alt="Tools & Equipment" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                        <div>
+                            <h4 class="text-white font-bold text-lg">Professional Equipment</h4>
+                            <p class="text-brand-lightPurple text-sm">Drill & Drive Fleet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 text-center">
+                 <button onclick="toggleView('contact-details')" class="px-8 py-4 bg-brand-purple hover:bg-purple-600 text-white font-bold rounded-full transition-all text-center">
+                    Discuss Your Project
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUB PAGE: Contact Details -->
+    <div id="contact-details" class="hidden flex-grow bg-brand-dark pt-32 pb-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
+            <!-- Back Button -->
+            <button onclick="toggleView('main-view')" class="mb-8 flex items-center text-brand-lightPurple hover:text-white transition-colors">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                Back to Home
+            </button>
+
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-white">Contact Us</h2>
+                <p class="text-gray-400 mt-2">Choose the best way to reach our team.</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Option 1: Send Message (Form) -->
+                <div class="bg-brand-dark p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl">
+                    <div class="mb-8 border-b border-white/10 pb-6">
+                        <h3 class="text-2xl font-bold text-white flex items-center gap-3">
+                            <div class="bg-brand-purple/20 p-2 rounded-lg">
+                                <i data-lucide="mail" class="text-brand-purple w-6 h-6"></i>
+                            </div>
+                            Send a Message
+                        </h3>
+                        <p class="text-gray-400 text-sm mt-2">Fill out the form below for a free quote.</p>
+                    </div>
+
+                    <form class="space-y-6" onsubmit="event.preventDefault(); alert('Thank you! We will contact you shortly.');">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Name</label>
+                                <input type="text" class="w-full bg-brand-black border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all" placeholder="John Doe">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
+                                <input type="email" class="w-full bg-brand-black border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all" placeholder="john@company.com">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Service Needed</label>
+                            <select class="w-full bg-brand-black border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all">
+                                <option>Commercial Handyman</option>
+                                <option>Commercial Plumbing</option>
+                                <option>Commercial Locksmith</option>
+                                <option>Commercial Electrical</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Message</label>
+                            <textarea rows="4" class="w-full bg-brand-black border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all" placeholder="Tell us about your project..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-brand-purple hover:bg-purple-600 text-white font-bold py-4 rounded-lg transition-colors shadow-lg shadow-purple-900/40">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Option 2: Call Us (Phone) -->
+                <div class="bg-brand-dark p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                    <!-- Decorative gradient background -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-brand-purple/20 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <div class="relative z-10 w-full">
+                        <div class="w-24 h-24 bg-brand-purple rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg shadow-purple-900/50">
+                            <i data-lucide="phone" class="w-10 h-10 text-white animate-pulse"></i>
+                        </div>
+                        
+                        <h3 class="text-3xl font-bold text-white mb-4">Prefer to Talk?</h3>
+                        <p class="text-gray-300 text-lg mb-8 max-w-md mx-auto">
+                            Need immediate assistance or have an emergency? Our commercial support team is available 24/7.
+                        </p>
+                        
+                        <div class="bg-brand-black/50 backdrop-blur-md border border-brand-purple/30 rounded-2xl p-8 mb-6 transform transition-transform hover:scale-105">
+                            <p class="text-gray-400 text-sm uppercase tracking-widest mb-2 font-semibold">Call Us Now</p>
+                            <a href="tel:919-555-0123" class="block text-4xl md:text-5xl font-bold text-white hover:text-brand-accent transition-colors">
+                                (919) 555-0123
+                            </a>
+                        </div>
+
+                        <div class="flex items-center justify-center gap-2 text-brand-lightPurple">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                            <span class="font-medium">Available 24 Hours a Day</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-black border-t border-white/5 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-start gap-8">
+            
+            <!-- Column 1: Brand -->
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="bg-brand-purple/20 p-2 rounded-lg text-brand-purple">
+                        <i data-lucide="wrench" class="h-5 w-5"></i>
+                    </div>
+                    <span class="font-bold text-lg text-white">DRILL & DRIVE</span>
+                </div>
+                <div class="text-gray-500 text-sm">
+                    &copy; 2024 Drill & Drive Company. <br>All rights reserved.
+                </div>
+            </div>
+
+            <!-- Column 2: Navigation -->
+            <div class="flex flex-col gap-2 text-sm">
+                <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-xs">Navigation</h4>
+                <a href="javascript:void(0)" onclick="toggleView('main-view'); document.getElementById('home').scrollIntoView();" class="text-gray-400 hover:text-brand-purple transition-colors">Home</a>
+                <a href="javascript:void(0)" onclick="toggleView('about-details')" class="text-gray-400 hover:text-brand-purple transition-colors">About</a>
+                <a href="javascript:void(0)" onclick="toggleView('contact-details')" class="text-gray-400 hover:text-brand-purple transition-colors">Contact</a>
+            </div>
+
+            <!-- Column 3: Hours of Operation -->
+            <div class="text-sm">
+                <h4 class="text-white font-bold mb-3 uppercase tracking-wider text-xs">Hours of Operation</h4>
+                <div class="grid grid-cols-2 gap-x-8 gap-y-1 text-gray-400">
+                    <div>Monday</div><div class="text-brand-purple">Open 24 Hours</div>
+                    <div>Tuesday</div><div class="text-brand-purple">Open 24 Hours</div>
+                    <div>Wednesday</div><div class="text-brand-purple">Open 24 Hours</div>
+                    <div>Thursday</div><div class="text-brand-purple">Open 24 Hours</div>
+                    <div>Friday</div><div class="text-brand-purple">Open 24 Hours</div>
+                    <div>Saturday</div><div class="text-brand-purple">Open 24 Hours</div>
+                    <div>Sunday</div><div class="text-brand-purple">Open 24 Hours</div>
+                </div>
+            </div>
+
+            <!-- Column 4: Social Links -->
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <!-- LinkedIn -->
+                <a href="#" class="text-gray-500 hover:text-brand-purple transition-colors"><i data-lucide="linkedin" class="h-5 w-5"></i></a>
+                <!-- Instagram -->
+                <a href="https://www.instagram.com/llsami625/" target="_blank" rel="noopener noreferrer" class="text-gray-500 hover:text-brand-purple transition-colors"><i data-lucide="instagram" class="h-5 w-5"></i></a>
+                <!-- Yelp -->
+                <a href="#" class="text-gray-500 hover:text-brand-purple transition-colors">
+                    <!-- Custom SVG for Yelp -->
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" stroke="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20.27 12.52c-.7-.53-1.78-.42-2.32.13l-3.03 2.53 2.53 2.53c.27.27.63.42 1 .42.27 0 .54-.08.78-.25.7-.53.82-1.61.27-2.31l-3.23-3.23 4-3.82zM12 11.08l-2.53 2.53 2.53 2.53 2.53-2.53-2.53-2.53zm-2.82-2.83L6.65 10.78c-.7.53-.82 1.61-.27 2.31.24.31.6.48.97.48.27 0 .54-.08.78-.25l3.82-3.03-2.77-2.04zM12.44 2.56c-.41-.41-1.24-.62-1.24-.62s-9.01 5.52-9.32 6.41c-.31.89.12 1.9 1 2.39.85.49 2.72 1.59 2.72 1.59s6.5-6.51 6.91-6.66c.41-.15.38-2.7-.07-3.11zM4.47 17.76l4.37-4.37.21.09s1.8 1.4 1.8 1.4c0 0-1.2 3.42-1.79 4.3-.59.88-1.63 1.16-2.51.77-.88-.39-2.08-2.19-2.08-2.19zM12.86 15.38c-.06-.24-.07-.49-.04-.74.04-.25.12-.49.24-.7l4.59 4.26c.6.84.48 1.98-.27 2.69-.75.71-2.71 1.29-2.71 1.29l-1.81-6.8z" transform="scale(0.85) translate(2,2)"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Mobile Menu Toggle Logic
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('hidden');
+            });
+        });
+
+        // View Toggling Logic
+        function toggleView(viewId) {
+            // Updated to handle 9 possible views: Main, Services Hub, Handyman, Plumbing, Locksmith, Electrical, About, Gallery, and Contact
+            const views = [
+                'main-view', 
+                'services-details', 
+                'handyman-details', 
+                'plumbing-details', 
+                'locksmith-details', 
+                'electrical-details', 
+                'about-details',
+                'gallery-details', // Added Gallery view
+                'contact-details'
+            ];
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+
+            views.forEach(id => {
+                const element = document.getElementById(id);
+                if (id === viewId) {
+                    element.classList.remove('hidden');
+                } else {
+                    element.classList.add('hidden');
+                }
+            });
+            
+            // Refresh icons for the new view
+            lucide.createIcons();
+        }
+
+        // Mouse Follow Glow Logic
+        const cursorGlow = document.getElementById('cursor-glow');
+        
+        // Only activate on devices with a fine pointer (mouse), not touch
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                // Offset by 300px (half of the 600px width/height) to center the glow
+                const x = e.clientX - 300;
+                const y = e.clientY - 300;
+                
+                requestAnimationFrame(() => {
+                    cursorGlow.style.transform = `translate(${x}px, ${y}px)`;
+                });
+            });
+        } else {
+            // Hide on touch devices
+            cursorGlow.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
